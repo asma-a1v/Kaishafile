@@ -15,7 +15,18 @@ def main():
             "available on your PYTHONPATH environment variable? Did you "
             "forget to activate a virtual environment?"
         ) from exc
-    execute_from_command_line(sys.argv)
+    
+    # サーバー起動コマンドの場合、マスター画面のURLも表示する
+    if len(sys.argv) > 1 and sys.argv[1] == 'runserver':
+        print("\nDjango server is starting...")
+        # オリジナルのrunserverコマンドを実行
+        execute_from_command_line(sys.argv)
+        # サーバー起動後に追加メッセージを表示
+        print("\nMaster management page is available at:")
+        print("http://127.0.0.1:8000/files/master/")
+        print("\nQuit the server with CTRL-BREAK.")
+    else:
+        execute_from_command_line(sys.argv)
 
 
 if __name__ == '__main__':

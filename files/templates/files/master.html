@@ -1,0 +1,453 @@
+{% extends 'files/base.html' %}
+
+{% block title %}マスター管理画面 - 社内ファイル管理システム{% endblock %}
+
+{% block extra_css %}
+<style>
+    .section-container {
+        margin-bottom: 30px;
+        border: 1px solid #dee2e6;
+        border-radius: 0.25rem;
+        background-color: white;
+    }
+    .section-header {
+        padding: 15px;
+        background-color: #f8f9fa;
+        border-bottom: 1px solid #dee2e6;
+        font-weight: 600;
+        border-radius: 0.25rem 0.25rem 0 0;
+    }
+    .section-body {
+        padding: 15px;
+    }
+    .log-display {
+        background-color: #1e1e1e;
+        border: 1px solid #333;
+        border-radius: 0.25rem;
+        padding: 10px;
+        height: 300px;
+        overflow-y: auto;
+        overflow-x: hidden;
+        font-family: 'Consolas', 'Monaco', monospace;
+        white-space: normal;
+        word-wrap: break-word;
+        color: #f0f0f0;
+        width: 100%;
+    }
+    .log-display pre {
+        white-space: pre-wrap;
+        margin: 0;
+        width: 100%;
+        overflow-x: hidden;
+    }
+    .log-line {
+        margin: 0;
+        padding: 2px 0;
+        font-size: 0.85rem;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        word-break: break-all;
+        max-width: 100%;
+        display: block;
+    }
+    /* ログの種類によって色分け */
+    .log-line-info {
+        color: #8ae234;
+    }
+    .log-line-warning {
+        color: #fcaf3e;
+    }
+    .log-line-error {
+        color: #ef2929;
+    }
+    .file-table {
+        font-size: 0.9rem;
+    }
+    .file-table th, .file-table td {
+        vertical-align: middle;
+    }
+    .refresh-btn {
+        margin-bottom: 20px;
+    }
+    .section-title {
+        margin-bottom: 20px;
+        border-bottom: 2px solid #6c757d;
+        padding-bottom: 10px;
+    }
+    
+    /* ソート可能な列ヘッダーのスタイル */
+    .sortable {
+        cursor: pointer;
+        position: relative;
+        padding-right: 20px; /* ソートアイコン用の余白 */
+    }
+    .sortable:hover {
+        background-color: #343a40; /* 暗めの色に変更 */
+        color: #fff;
+    }
+    .table-dark .sortable:hover {
+        background-color: #495057; /* 若干明るめの色でハイライト */
+    }
+    .sortable:after {
+        content: '\25BC'; /* 下向き三角（降順） */
+        position: absolute;
+        right: 8px;
+        opacity: 0.3;
+        font-size: 0.7em;
+    }
+    .sortable.asc:after {
+        content: '\25B2'; /* 上向き三角（昇順） */
+        opacity: 1;
+    }
+    .sortable.desc:after {
+        content: '\25BC'; /* 下向き三角（降順） */
+        opacity: 1;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<h2 class="section-title">マスター管理画面</h2>
+
+<div class="mb-4">
+    <button id="refresh-page" class="btn btn-primary refresh-btn">
+        <i class="fas fa-sync-alt"></i> ページを更新
+    </button>
+</div>
+
+<!-- ログセクション（上部） -->
+<div class="row mb-4">
+    <!-- メインログ -->
+    <div class="col-md-4">
+        <div class="section-container">
+            <div class="section-header">
+                <i class="fas fa-file-alt"></i> メインログ
+            </div>
+            <div class="section-body">
+                <div class="log-display">
+                    {% for line in logs.main %}
+                    <div class="log-line {% if 'ERROR' in line %}log-line-error{% elif 'WARNING' in line %}log-line-warning{% else %}log-line-info{% endif %}">{{ line }}</div>
+                    {% empty %}
+                    <div class="log-line">ログデータがありません</div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- ダウンロードログ -->
+    <div class="col-md-4">
+        <div class="section-container">
+            <div class="section-header">
+                <i class="fas fa-file-download"></i> ダウンロードログ
+            </div>
+            <div class="section-body">
+                <div class="log-display">
+                    {% for line in logs.download %}
+                    <div class="log-line {% if 'ERROR' in line %}log-line-error{% elif 'WARNING' in line %}log-line-warning{% else %}log-line-info{% endif %}">{{ line }}</div>
+                    {% empty %}
+                    <div class="log-line">ログデータがありません</div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- アップロードログ -->
+    <div class="col-md-4">
+        <div class="section-container">
+            <div class="section-header">
+                <i class="fas fa-file-upload"></i> アップロードログ
+            </div>
+            <div class="section-body">
+                <div class="log-display">
+                    {% for line in logs.upload %}
+                    <div class="log-line {% if 'ERROR' in line %}log-line-error{% elif 'WARNING' in line %}log-line-warning{% else %}log-line-info{% endif %}">{{ line }}</div>
+                    {% empty %}
+                    <div class="log-line">ログデータがありません</div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- アップロードファイル一覧セクション -->
+<div class="section-container">
+    <div class="section-header">
+        <i class="fas fa-upload"></i> アップロードファイル一覧
+    </div>
+    <div class="section-body">
+        <div class="table-responsive">
+            <table class="table table-striped table-hover file-table sortable-table" id="upload-table">
+                <thead class="table-dark">
+                    <tr>
+                        <th class="sortable" data-sort="id">ID</th>
+                        <th class="sortable asc" data-sort="filename">ファイル名</th>
+                        <th class="sortable" data-sort="size">サイズ</th>
+                        <th class="sortable" data-sort="date">アップロード日時</th>
+                        <th class="sortable" data-sort="code">社員コード</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for file in upload_files %}
+                    <tr>
+                        <td data-value="{{ file.id }}">{{ file.id }}</td>
+                        <td data-value="{{ file.original_filename }}">{{ file.original_filename }}</td>
+                        <td data-value="{{ file.file_size }}">{{ file.file_size|filesizeformat }}</td>
+                        <td data-value="{{ file.uploaded_at|date:'YmdHis' }}">{{ file.uploaded_at }}</td>
+                        <td data-value="{{ file.employee_code }}">{{ file.employee_code }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center">アップロードファイルがありません</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- ダウンロードファイル一覧セクション -->
+<div class="section-container">
+    <div class="section-header">
+        <i class="fas fa-download"></i> ダウンロードファイル一覧
+    </div>
+    <div class="section-body">
+        <div class="table-responsive">
+            <table class="table table-striped table-hover file-table sortable-table" id="download-table">
+                <thead class="table-dark">
+                    <tr>
+                        <th class="sortable" data-sort="id">ID</th>
+                        <th class="sortable asc" data-sort="filename">ファイル名</th>
+                        <th class="sortable" data-sort="size">サイズ</th>
+                        <th class="sortable" data-sort="date">最終更新日時</th>
+                        <th class="sortable" data-sort="status">ダウンロード済み</th>
+                        <th class="sortable" data-sort="download-date">最終ダウンロード日時</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for file in download_files %}
+                    <tr>
+                        <td data-value="{{ file.id }}">{{ file.id }}</td>
+                        <td data-value="{{ file.filename }}">{{ file.filename }}</td>
+                        <td data-value="{{ file.file_size }}">{{ file.file_size|filesizeformat }}</td>
+                        <td data-value="{{ file.last_modified|date:'YmdHis' }}">{{ file.last_modified }}</td>
+                        <td data-value="{% if file.is_downloaded %}1{% else %}0{% endif %}">{% if file.is_downloaded %}<i class="fas fa-check text-success"></i>{% else %}<i class="fas fa-times text-danger"></i>{% endif %}</td>
+                        <td data-value="{% if file.last_downloaded_at %}{{ file.last_downloaded_at|date:'YmdHis' }}{% else %}0{% endif %}">{{ file.last_downloaded_at|default:"-" }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center">ダウンロードファイルがありません</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    $(document).ready(function() {
+        // ページ更新ボタン
+        $('#refresh-page').on('click', function() {
+            location.reload();
+        });
+        
+        // ログ表示を最下部にスクロール（初期表示時）
+        function scrollLogsToBottom() {
+            $('.log-display').each(function() {
+                $(this).scrollTop($(this)[0].scrollHeight);
+            });
+        }
+        
+        // 初期表示時にスクロール
+        scrollLogsToBottom();
+        
+        // ログおよびファイル一覧の自動更新
+        function updateData() {
+            $.ajax({
+                url: '{% url "files:get_logs" %}',
+                type: 'GET',
+                dataType: 'json',
+                success: function(data) {
+                    if (data.status === 'success') {
+                        // 各ログタイプごとに更新
+                        Object.keys(data.logs).forEach(function(logType) {
+                            var logContainer = $('.log-display').eq(['main', 'download', 'upload'].indexOf(logType));
+                            if (logContainer.length) {
+                                // 現在のスクロール位置を取得
+                                var wasAtBottom = logContainer[0].scrollHeight - logContainer.scrollTop() <= logContainer.outerHeight() + 10;
+                                
+                                // ログコンテンツをクリア
+                                logContainer.empty();
+                                
+                                // 新しいログ行を追加
+                                data.logs[logType].forEach(function(log) {
+                                    logContainer.append('<div class="log-line ' + log.class + '">' + log.text + '</div>');
+                                });
+                                
+                                // 更新前にスクロール位置が一番下だった場合は、スクロール位置を一番下に維持
+                                if (wasAtBottom) {
+                                    logContainer.scrollTop(logContainer[0].scrollHeight);
+                                }
+                            }
+                        });
+                        
+                        // ダウンロードファイル一覧を更新
+                        if (data.download_files && data.download_files.length > 0) {
+                            var downloadTableBody = $('#download-table tbody');
+                            downloadTableBody.empty();
+                            
+                            data.download_files.forEach(function(file) {
+                                var downloadIcon = file.is_downloaded ? 
+                                    '<i class="fas fa-check text-success"></i>' : 
+                                    '<i class="fas fa-times text-danger"></i>';
+                                    
+                                var row = '<tr>' +
+                                    '<td data-value="' + file.id + '">' + file.id + '</td>' +
+                                    '<td data-value="' + file.filename + '">' + file.filename + '</td>' +
+                                    '<td data-value="' + file.file_size + '">' + formatFileSize(file.file_size) + '</td>' +
+                                    '<td data-value="' + file.last_modified.replace(/[^0-9]/g, '') + '">' + file.last_modified + '</td>' +
+                                    '<td data-value="' + (file.is_downloaded ? '1' : '0') + '">' + downloadIcon + '</td>' +
+                                    '<td data-value="' + (file.last_downloaded_at ? file.last_downloaded_at.replace(/[^0-9]/g, '') : '0') + '">' + 
+                                    (file.last_downloaded_at ? file.last_downloaded_at : '-') + '</td>' +
+                                    '</tr>';
+                                downloadTableBody.append(row);
+                            });
+                        } else {
+                            $('#download-table tbody').html('<tr><td colspan="6" class="text-center">ダウンロードファイルがありません</td></tr>');
+                        }
+                        
+                        // アップロードファイル一覧を更新
+                        if (data.upload_files && data.upload_files.length > 0) {
+                            var uploadTableBody = $('#upload-table tbody');
+                            uploadTableBody.empty();
+                            
+                            data.upload_files.forEach(function(file) {
+                                var row = '<tr>' +
+                                    '<td data-value="' + file.id + '">' + file.id + '</td>' +
+                                    '<td data-value="' + file.original_filename + '">' + file.original_filename + '</td>' +
+                                    '<td data-value="' + file.file_size + '">' + formatFileSize(file.file_size) + '</td>' +
+                                    '<td data-value="' + file.uploaded_at.replace(/[^0-9]/g, '') + '">' + file.uploaded_at + '</td>' +
+                                    '<td data-value="' + file.employee_code + '">' + file.employee_code + '</td>' +
+                                    '</tr>';
+                                uploadTableBody.append(row);
+                            });
+                        } else {
+                            $('#upload-table tbody').html('<tr><td colspan="5" class="text-center">アップロードファイルがありません</td></tr>');
+                        }
+                        
+                        // テーブルの並び替え状態を再適用
+                        reapplySorting();
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('データの取得に失敗しました: ' + error);
+                }
+            });
+        }
+        
+        // ファイルサイズのフォーマット
+        function formatFileSize(size) {
+            if (size < 1024) {
+                return size + ' B';
+            } else if (size < 1024 * 1024) {
+                return (size / 1024).toFixed(2) + ' KB';
+            } else if (size < 1024 * 1024 * 1024) {
+                return (size / (1024 * 1024)).toFixed(2) + ' MB';
+            } else {
+                return (size / (1024 * 1024 * 1024)).toFixed(2) + ' GB';
+            }
+        }
+        
+        // テーブルのソート状態を再適用
+        function reapplySorting() {
+            $('.sortable-table').each(function() {
+                var table = $(this);
+                var header = table.find('th.sortable.asc, th.sortable.desc').first();
+                
+                if (header.length) {
+                    var colIndex = header.index();
+                    var isAsc = header.hasClass('asc');
+                    sortTable(table, colIndex, isAsc);
+                }
+            });
+        }
+        
+        // 10秒ごとにデータを自動更新
+        var dataUpdateInterval = setInterval(updateData, 10000);
+        
+        // ページ離脱時にインターバルをクリア
+        $(window).on('beforeunload', function() {
+            clearInterval(dataUpdateInterval);
+        });
+        
+        // テーブルのソート機能
+        $('.sortable-table').each(function() {
+            var table = $(this);
+            
+            // ソート関数
+            function sortTable(table, colIndex, asc) {
+                var tbody = table.find('tbody');
+                var rows = tbody.find('tr').toArray();
+                
+                // 空の行がある場合はソートしない
+                if (rows.length <= 1 && $(rows[0]).find('td:first').hasClass('text-center')) {
+                    return;
+                }
+                
+                // ソート
+                rows.sort(function(a, b) {
+                    var aValue = $(a).find('td').eq(colIndex).data('value') || $(a).find('td').eq(colIndex).text();
+                    var bValue = $(b).find('td').eq(colIndex).data('value') || $(b).find('td').eq(colIndex).text();
+                    
+                    // 数値の場合は数値として比較
+                    if (!isNaN(aValue) && !isNaN(bValue)) {
+                        aValue = parseFloat(aValue);
+                        bValue = parseFloat(bValue);
+                        return asc ? aValue - bValue : bValue - aValue;
+                    }
+                    
+                    // 文字列の場合
+                    return asc ? 
+                        String(aValue).localeCompare(String(bValue), 'ja') : 
+                        String(bValue).localeCompare(String(aValue), 'ja');
+                });
+                
+                // ソート結果をテーブルに適用
+                tbody.append(rows);
+            }
+            
+            // 列ヘッダーのクリックイベント
+            table.find('th.sortable').on('click', function() {
+                var th = $(this);
+                var table = th.closest('table');
+                var colIndex = th.index();
+                
+                // 現在の状態を取得
+                var isAsc = th.hasClass('asc');
+                
+                // 全ての列ヘッダーからソート状態を削除
+                table.find('th.sortable').removeClass('asc desc');
+                
+                // 新しいソート状態を設定
+                th.addClass(isAsc ? 'desc' : 'asc');
+                
+                // テーブルをソート
+                sortTable(table, colIndex, !isAsc);
+            });
+            
+            // 初期ソート（ファイル名の昇順）
+            var defaultSortHeader = table.find('th.sortable.asc');
+            if (defaultSortHeader.length) {
+                var colIndex = defaultSortHeader.index();
+                sortTable(table, colIndex, true);
+            }
+        });
+    });
+</script>
+{% endblock %} 

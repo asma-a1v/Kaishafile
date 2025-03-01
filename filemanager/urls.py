@@ -19,11 +19,13 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 from django.views.generic import RedirectView
+from files.views import master_view  # マスタービューをインポート
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('files/', include('files.urls')),
     path('', RedirectView.as_view(url='/files/', permanent=True)),
+    path('master/', master_view, name='master'),  # マスターページへの直接パス
 ]
 
 # 開発環境でのメディアファイルの提供

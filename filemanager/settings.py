@@ -154,10 +154,20 @@ LOGGING = {
     'handlers': {
         'file': {
             'level': 'INFO',
-            'class': 'logging.handlers.RotatingFileHandler',
+            'class': 'logging.FileHandler',
             'filename': os.path.join(BASE_DIR, 'logs/filemanager.log'),
-            'maxBytes': 10485760,  # 10MB
-            'backupCount': 10,
+            'formatter': 'verbose',
+        },
+        'download_file': {
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(BASE_DIR, 'logs/download.log'),
+            'formatter': 'verbose',
+        },
+        'upload_file': {
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(BASE_DIR, 'logs/upload.log'),
             'formatter': 'verbose',
         },
     },
@@ -171,6 +181,16 @@ LOGGING = {
             'handlers': ['file'],
             'level': 'INFO',
             'propagate': True,
+        },
+        'download': {
+            'handlers': ['download_file'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        'upload': {
+            'handlers': ['upload_file'],
+            'level': 'INFO',
+            'propagate': False,
         },
     },
 }
