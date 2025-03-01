@@ -70,6 +70,10 @@ Kaishafileは、社内でのファイル共有を簡単かつ効率的に行う�
    ```
    python manage.py runserver
    ```
+
+   ```
+   .\venv\Scripts\Activate && python manage.py runserver
+   ```
 6. ブラウザで以下のURLにアクセス
 
    ```
