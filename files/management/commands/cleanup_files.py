@@ -1,5 +1,7 @@
 import os
 import logging
+import time
+import threading
 from datetime import timedelta
 
 from django.core.management.base import BaseCommand
@@ -12,10 +14,24 @@ logger = logging.getLogger(__name__)
 class Command(BaseCommand):
     help = 'ダウンロード済みファイルを削除します（翌日0:00に実行）'
 
+    def add_arguments(self, parser):
+        parser.add_argument(
+            '--daemon',
+            action='store_true',
+            help='デーモンモードで実行し、毎日0時に自動的にファイルクリーンアップを実行します',
+        )
+
     def handle(self, *args, **options):
         """
         前日以前にダウンロードされたファイルを削除する処理
         """
+        # デーモンモードの場合は別スレッドで定期的に実行
+        if options.get('daemon', False):
+            self.stdout.write('デーモンモードで起動しました。毎日0時に実行します。')
+            self.run_as_daemon()
+            return
+            
+        # 通常の処理
         # 現在日付の取得
         now = timezone.now()
         yesterday = now.date() - timedelta(days=1)
@@ -56,3 +72,41 @@ class Command(BaseCommand):
                 logger.error(error_msg)
         
         self.stdout.write(f'{deleted_count}件のファイルを削除しました') 
+
+    def run_as_daemon(self):
+        """デーモンモードで毎日0時にファイルクリーンアップを実行する"""
+        
+        def scheduler():
+            while True:
+                try:
+                    # 現在時刻を取得
+                    now = timezone.now()
+                    
+                    # 次の0時までの秒数を計算
+                    tomorrow = now.replace(hour=0, minute=0, second=0, microsecond=0) + timedelta(days=1)
+                    seconds_until_midnight = (tomorrow - now).total_seconds()
+                    
+                    self.stdout.write(f'{now.strftime("%Y-%m-%d %H:%M:%S")} - 次回のファイルクリーンアップは{tomorrow.strftime("%Y-%m-%d %H:%M:%S")}に実行されます（あと{seconds_until_midnight:.0f}秒）')
+                    
+                    # 次の0時までスリープ
+                    time.sleep(seconds_until_midnight)
+                    
+                    # 0時になったらクリーンアップを実行
+                    self.stdout.write(f'{timezone.now().strftime("%Y-%m-%d %H:%M:%S")} - ファイルクリーンアップを実行します')
+                    self.handle(daemon=False)
+                    
+                except Exception as e:
+                    logger.error(f'デーモン実行中にエラーが発生しました: {str(e)}')
+                    # エラーが発生しても続行（1時間後に再試行）
+                    time.sleep(3600)
+        
+        # 別スレッドで実行
+        thread = threading.Thread(target=scheduler, daemon=True)
+        thread.start()
+        
+        # メインスレッドは終了しないように待機
+        try:
+            while thread.is_alive():
+                time.sleep(1)
+        except KeyboardInterrupt:
+            self.stdout.write('プロセスが終了されました') 

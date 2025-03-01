@@ -1,0 +1,38 @@
+INFO 2025-03-01 18:54:01,987 autoreload Watching for file changes with StatReloader
+INFO 2025-03-01 18:57:07,401 basehttp "GET / HTTP/1.1" 301 0
+INFO 2025-03-01 18:57:07,475 basehttp "GET /files/ HTTP/1.1" 200 3912
+INFO 2025-03-01 18:57:09,515 basehttp "GET /files/upload/ HTTP/1.1" 200 16485
+INFO 2025-03-01 18:57:10,388 models 存在しないファイル記録を削除: dummy_file_1.txt
+INFO 2025-03-01 18:57:10,393 models 存在しないファイル記録を削除: dummy_file_10.txt
+INFO 2025-03-01 18:57:10,398 models 存在しないファイル記録を削除: dummy_file_2.txt
+INFO 2025-03-01 18:57:10,403 models 存在しないファイル記録を削除: dummy_file_3.txt
+INFO 2025-03-01 18:57:10,407 models 存在しないファイル記録を削除: dummy_file_4.txt
+INFO 2025-03-01 18:57:10,412 models 存在しないファイル記録を削除: dummy_file_5.txt
+INFO 2025-03-01 18:57:10,417 models 存在しないファイル記録を削除: dummy_file_6.txt
+INFO 2025-03-01 18:57:10,422 models 存在しないファイル記録を削除: dummy_file_7.txt
+INFO 2025-03-01 18:57:10,426 models 存在しないファイル記録を削除: dummy_file_8.txt
+INFO 2025-03-01 18:57:10,430 models 存在しないファイル記録を削除: dummy_file_9.txt
+INFO 2025-03-01 18:57:10,433 basehttp "GET /files/download/ HTTP/1.1" 200 9710
+INFO 2025-03-01 18:57:15,469 basehttp "GET /files/api/files/ HTTP/1.1" 200 34
+INFO 2025-03-01 18:57:40,454 basehttp "GET /files/api/files/ HTTP/1.1" 200 34
+INFO 2025-03-01 18:58:10,454 basehttp "GET /files/api/files/ HTTP/1.1" 200 34
+INFO 2025-03-01 18:58:40,453 basehttp "GET /files/api/files/ HTTP/1.1" 200 34
+INFO 2025-03-01 18:59:10,455 basehttp "GET /files/api/files/ HTTP/1.1" 200 34
+INFO 2025-03-01 18:59:40,454 basehttp "GET /files/api/files/ HTTP/1.1" 200 34
+INFO 2025-03-01 19:00:10,457 basehttp "GET /files/api/files/ HTTP/1.1" 200 34
+INFO 2025-03-01 19:00:29,447 autoreload C:\Users\ASMA\Documents\GitHub\Kaishafile\files\apps.py changed, reloading.
+INFO 2025-03-01 19:00:29,934 autoreload Watching for file changes with StatReloader
+INFO 2025-03-01 19:00:40,457 basehttp "GET /files/api/files/ HTTP/1.1" 200 34
+INFO 2025-03-01 19:00:47,539 autoreload C:\Users\ASMA\Documents\GitHub\Kaishafile\filemanager\settings.py changed, reloading.
+INFO 2025-03-01 19:00:48,029 autoreload Watching for file changes with StatReloader
+INFO 2025-03-01 19:01:10,462 basehttp "GET /files/api/files/ HTTP/1.1" 200 34
+INFO 2025-03-01 19:01:40,463 basehttp "GET /files/api/files/ HTTP/1.1" 200 34
+INFO 2025-03-01 19:02:10,457 basehttp "GET /files/api/files/ HTTP/1.1" 200 34
+INFO 2025-03-01 19:02:40,462 basehttp "GET /files/api/files/ HTTP/1.1" 200 34
+INFO 2025-03-01 19:03:10,453 basehttp "GET /files/api/files/ HTTP/1.1" 200 34
+INFO 2025-03-01 19:03:40,458 basehttp "GET /files/api/files/ HTTP/1.1" 200 34
+INFO 2025-03-01 19:04:10,458 basehttp "GET /files/api/files/ HTTP/1.1" 200 34
+INFO 2025-03-01 19:04:40,459 basehttp "GET /files/api/files/ HTTP/1.1" 200 34
+INFO 2025-03-01 19:05:10,461 basehttp "GET /files/api/files/ HTTP/1.1" 200 34
+INFO 2025-03-01 19:07:07,424 autoreload Watching for file changes with StatReloader
+INFO 2025-03-01 19:07:10,460 basehttp "GET /files/api/files/ HTTP/1.1" 200 34

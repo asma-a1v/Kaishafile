@@ -205,3 +205,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
 CRISPY_TEMPLATE_PACK = "bootstrap5"
+
+# 自動クリーンアップ機能の設定
+AUTO_CLEANUP_ENABLED = True  # 自動クリーンアップを有効にするフラグ
+LOG_CLEANUP_INTERVAL = 3600  # ログクリーンアップの実行間隔（秒）
