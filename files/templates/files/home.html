@@ -1,0 +1,33 @@
+{% extends 'files/base.html' %}
+
+{% block title %}ホーム - 社内ファイル管理システム{% endblock %}
+
+{% block content %}
+<div class="text-center py-5">
+    <h1 class="mb-4">社内ファイル管理システム</h1>
+    <p class="lead">サイドバーからメニューを選択してください</p>
+    
+    <div class="row mt-5">
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-body text-center">
+                    <i class="fas fa-download fa-4x mb-3 text-primary"></i>
+                    <h3>ダウンロード</h3>
+                    <p>アップロードされたファイルをダウンロードします</p>
+                    <a href="{% url 'files:download' %}" class="btn btn-primary">ダウンロードへ</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-body text-center">
+                    <i class="fas fa-upload fa-4x mb-3 text-success"></i>
+                    <h3>アップロード</h3>
+                    <p>ファイルをアップロードします</p>
+                    <a href="{% url 'files:upload' %}" class="btn btn-success">アップロードへ</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 
