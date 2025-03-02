@@ -1,4 +1,4 @@
-# Kaishafile - 社内ファイル管理システム
+# Kaishafile - システム宛ファイル共有システム
 
 Kaishafileは、社内でのファイル共有を簡単かつ効率的に行うためのDjangoベースのウェブアプリケーションです。ファイルのアップロードとダウンロードを管理し、操作履歴を記録します。
 
@@ -54,6 +54,7 @@ Kaishafileは、社内でのファイル共有を簡単かつ効率的に行う�
    git clone https://github.com/yourusername/Kaishafile.git
    cd Kaishafile
    ```
+   
 2. 仮想環境の作成と有効化
 
    ```
