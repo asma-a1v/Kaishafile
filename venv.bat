@@ -3,17 +3,20 @@ echo Pythonの仮想環境を起動しています...
 
 REM 仮想環境が存在するか確認
 if not exist venv (
-    echo 仮想環境が見つかりません。新しく作成します...
+    echo 仮想環墳が存在しません。作成します。
     python -m venv venv
     echo 仮想環境を作成しました。
+    call venv\Scripts\activate
+    echo 仮想環境が有効になりました。
     python -m pip install --upgrade pip
-    echo pipをアップグレードしました。
+    echo pipをアップデートしました。
     pip install -r requirements.txt
-    echo パッケージをインストールしました。
+    echo 必要なライブラリをインストールしました。
+) else (
+    echo 仮想環墳が存在します。
+    call venv\Scripts\activate
+    echo 仮想環境が有効になりました。
 )
-
-REM 仮想環境を有効化
-call .\venv\Scripts\activate
 
 echo 仮想環境が有効になりました。
 echo 終了するには "deactivate" と入力してください。
