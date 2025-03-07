@@ -106,23 +106,84 @@ Kaishafileは、社内でのファイル共有を簡単かつ効率的に行う�
 ## ディレクトリ構造
 
 ```
-Kaishafile/
-├── filemanager/        # メインプロジェクト設定
-├── files/              # ファイル管理アプリケーション
-│   ├── migrations/     # データベースマイグレーション
-│   ├── templates/      # HTMLテンプレート
-│   ├── admin.py        # 管理画面設定
-│   ├── forms.py        # フォーム定義
-│   ├── models.py       # データモデル
-│   ├── urls.py         # URLルーティング
-│   └── views.py        # ビュー関数
-├── media/              # アップロードされたファイル
-├── static/             # 静的ファイル（CSS、JS等）
-├── logs/               # ログファイル
-├── download_files/     # ダウンロード用ファイル
-├── manage.py           # Djangoコマンドライン
-└── requirements.txt    # 依存パッケージリスト
+project-web-1/
+│
+├── manage.py                         # Djangoの管理コマンド実行スクリプト
+├── db.sqlite3                        # SQLiteデータベースファイル
+├── cleanup_files.bat                 # ファイル自動削除用のバッチファイル
+│
+├── filemanager/                      # プロジェクト設定パッケージ
+│   ├── __init__.py
+│   ├── settings.py                   # プロジェクト設定ファイル
+│   ├── urls.py                       # プロジェクトURL設定
+│   ├── wsgi.py                       # WSGI設定
+│   └── asgi.py                       # ASGI設定
+│
+├── files/                            # ファイル管理アプリケーション
+│   ├── __init__.py
+│   ├── admin.py                      # 管理画面設定
+│   ├── apps.py                       # アプリケーション設定
+│   ├── forms.py                      # フォーム定義
+│   ├── models.py                     # データモデル定義
+│   ├── tests.py                      # テストケース
+│   ├── urls.py                       # アプリケーションURL設定
+│   ├── views.py                      # ビュー関数・ロジック
+│   │
+│   ├── management/                   # カスタム管理コマンド
+│   │   ├── __init__.py
+│   │   └── commands/
+│   │       ├── __init__.py
+│   │       └── cleanup_files.py      # ファイル自動削除コマンド
+│   │
+│   ├── migrations/                   # データベースマイグレーション
+│   │   ├── __init__.py
+│   │   ├── 0001_initial.py
+│   │   └── 0002_auto_20250301_0533.py
+│   │
+│   └── templates/                    # HTMLテンプレート
+│       └── files/
+│           ├── base.html             # ベーステンプレート
+│           ├── home.html             # ホームページ
+│           ├── upload.html           # アップロード画面
+│           └── download.html         # ダウンロード画面
+│
+├── media/                            # メディアファイル保存ディレクトリ
+│   ├── uploads/                      # アップロードされたファイル保存
+│   └── downloads/                    # ダウンロード対象ファイル保存
+│
+├── static/                           # 静的ファイル（CSS/JS等）
+│
+├── logs/                             # ログファイル保存ディレクトリ
+│
+└── download_files/                   # 古いダウンロードディレクトリ（使用されていません）
+
 ```
+
+### システムの主な機能
+
+1. **ファイルダウンロード機能**
+    - 特定ディレクトリ（`media/downloads/`）に配置されたファイルを表示
+    - ファイルのダウンロード状態追跡
+    - ダウンロード済みファイルは翌日の0:00に自動削除
+2. **ファイルアップロード機能**
+    - Webインターフェースでのファイルアップロード
+    - ファイルは別のディレクトリ（`media/uploads/`）に保存
+    - アップロードされたファイルはダウンロード一覧には表示されない
+3. **自動削除機能**
+    - ダウンロード済みのファイルのみを対象
+    - 前日までにダウンロードされたファイルを削除
+    - Windows Task Schedulerと連携する`cleanup_files.bat`を使用
+
+### データモデル
+
+1. **FileRecord**
+    - アップロードされたファイルの記録
+2. **DownloadableFile**
+    - ダウンロード可能ファイルの記録
+    - 特定ディレクトリからスキャン
+3. **DownloadRecord**
+    - ダウンロード履歴
+    - ダウンロードされたファイルとその日時を記録
 
 ## 管理者向け情報
 
